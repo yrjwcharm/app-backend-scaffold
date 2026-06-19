@@ -1,4 +1,4 @@
-package com.example.app.config;
+package com.example.app.common;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import org.apache.ibatis.reflection.MetaObject;
@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 
 @Component
-public class MybatisPlusConfig implements MetaObjectHandler {
+public class MyMetaObjectHandler implements MetaObjectHandler {
     @Override
     public void insertFill(MetaObject metaObject) {
         //createAt、updateAt 、createBy、updateBy
