@@ -1,0 +1,49 @@
+CREATE DATABASE IF NOT EXISTS app_backend DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE app_backend;
+
+DROP TABLE IF EXISTS sms_code;
+DROP TABLE IF EXISTS user_auth;
+DROP TABLE IF EXISTS user;
+
+CREATE TABLE user (
+  id BIGINT NOT NULL COMMENT '雪花算法ID',
+  nickname VARCHAR(64) NOT NULL DEFAULT '' COMMENT '昵称',
+  avatar VARCHAR(255) DEFAULT NULL COMMENT '头像',
+  phone VARCHAR(20) DEFAULT NULL COMMENT '手机号',
+  status TINYINT NOT NULL DEFAULT 1 COMMENT '1正常 0禁用',
+  create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  deleted TINYINT NOT NULL DEFAULT 0 COMMENT '0未删除 1已删除',
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_phone (phone)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户基础表';
+
+CREATE TABLE user_auth (
+  id BIGINT NOT NULL COMMENT '雪花算法ID',
+  user_id BIGINT NOT NULL COMMENT '用户ID',
+  identity_type VARCHAR(32) NOT NULL COMMENT 'password/phone/wechat/apple',
+  identifier VARCHAR(128) NOT NULL COMMENT '账号/手机号/openid',
+  credential VARCHAR(255) DEFAULT NULL COMMENT '密码hash或第三方凭证',
+  status TINYINT NOT NULL DEFAULT 1 COMMENT '1正常 0禁用',
+  create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  deleted TINYINT NOT NULL DEFAULT 0,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_identity_identifier (identity_type, identifier),
+  KEY idx_user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户认证方式表';
+
+CREATE TABLE sms_code (
+  id BIGINT NOT NULL COMMENT '雪花算法ID',
+  phone VARCHAR(20) NOT NULL COMMENT '手机号',
+  code VARCHAR(10) NOT NULL COMMENT '验证码',
+  scene VARCHAR(32) NOT NULL COMMENT 'login/register/reset_password',
+  expire_time DATETIME NOT NULL COMMENT '过期时间',
+  used TINYINT NOT NULL DEFAULT 0 COMMENT '0未使用 1已使用',
+  create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  deleted TINYINT NOT NULL DEFAULT 0,
+  PRIMARY KEY (id),
+  KEY idx_phone_scene (phone, scene),
+  KEY idx_expire_time (expire_time)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='短信验证码表';

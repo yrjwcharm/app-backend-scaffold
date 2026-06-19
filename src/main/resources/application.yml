@@ -1,0 +1,51 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: app-backend-scaffold
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/app_backend?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+  data:
+    redis:
+      host: 192.168.174.129
+      port: 6379
+      password: 123456
+      database: 0
+      timeout: 3000ms
+
+  cache:
+    type: redis
+    redis:
+      time-to-live: 1800000
+
+  http:
+    converters:
+      preferred-json-mapper: jackson2
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    # 开发环境可开启，生产环境建议关闭
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: assign_id
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+app:
+  jwt:
+    # 至少 32 字节，正式环境请放到环境变量或配置中心
+    secret: "app-backend-scaffold-jwt-secret-please-change-32bytes"
+    expire-days: 30
+    header: Authorization
+    prefix: Bearer 
