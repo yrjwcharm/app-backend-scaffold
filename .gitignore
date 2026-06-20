@@ -11,5 +11,5 @@ target/
 *.ipr
 
 .mvn
-test/
+/test/
 /target/

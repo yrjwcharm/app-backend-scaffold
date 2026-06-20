@@ -19,7 +19,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CustomException.class)
     public ApiResponse<Void> handleCustomException(CustomException e) {
         log.warn("业务异常：{}", e.getMessage());
-        return ApiResponse.failed(e.getMessage());
+        return ApiResponse.failed(e.getCode(), e.getMessage());
     }
 
     /**

@@ -1,13 +1,17 @@
 package com.yanruieng.app.controller;
 
 import com.yanruieng.app.common.ApiResponse;
-import com.yanruieng.app.dto.LoginDTO;
-import com.yanruieng.app.dto.RegisterDTO;
+import com.yanruieng.app.dto.PhoneCodeLoginDTO;
+import com.yanruieng.app.dto.PhoneCodeSendDTO;
 import com.yanruieng.app.service.AuthService;
 import com.yanruieng.app.vo.LoginVO;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -15,13 +19,21 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthService authService;
 
-    @PostMapping("/register")
-    public ApiResponse<LoginVO> register(@Valid @RequestBody RegisterDTO dto) {
-        return ApiResponse.success(authService.register(dto));
+    /**
+     * 发送手机号登录验证码。无论手机号是否已注册，接口响应保持一致，避免泄露账号状态。
+     */
+    @PostMapping("/phone/code")
+    public ApiResponse<Void> sendPhoneCode(@Valid @RequestBody PhoneCodeSendDTO dto,
+                                           HttpServletRequest request) {
+        authService.sendPhoneLoginCode(dto.getPhone(), request.getRemoteAddr());
+        return ApiResponse.success();
     }
 
-    @PostMapping("/login")
-    public ApiResponse<LoginVO> login(@Valid @RequestBody LoginDTO dto) {
-        return ApiResponse.success(authService.login(dto));
+    /**
+     * 手机号验证码登录；手机号首次登录时自动创建用户。
+     */
+    @PostMapping("/phone/login")
+    public ApiResponse<LoginVO> phoneLogin(@Valid @RequestBody PhoneCodeLoginDTO dto) {
+        return ApiResponse.success(authService.phoneLogin(dto));
     }
 }

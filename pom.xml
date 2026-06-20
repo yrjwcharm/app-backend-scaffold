@@ -19,6 +19,8 @@
 
     <properties>
         <java.version>17</java.version>
+        <!-- JDK 23+ 默认不再自动执行 classpath 中的注解处理器，显式启用 Lombok。 -->
+        <maven.compiler.proc>full</maven.compiler.proc>
         <mybatis-plus.version>3.5.15</mybatis-plus.version>
         <jjwt.version>0.12.6</jjwt.version>
     </properties>

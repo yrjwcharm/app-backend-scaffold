@@ -11,7 +11,8 @@ public enum ResponseCode {
     FAIL(500, "服务器异常"),
     BAD_REQUEST(400, "请求参数错误"),
     UNAUTHORIZED(401, "未登录或登录已过期"),
-    FORBIDDEN(403, "无权限访问");
+    FORBIDDEN(403, "无权限访问"),
+    TOO_MANY_REQUESTS(429, "请求过于频繁");
 
     private final Integer code;
     private final String message;

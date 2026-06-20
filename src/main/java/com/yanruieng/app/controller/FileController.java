@@ -3,18 +3,17 @@ package com.yanruieng.app.controller;
 import com.yanruieng.app.common.ApiResponse;
 import com.yanruieng.app.service.FileService;
 import com.yanruieng.app.vo.FileUploadVO;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/files")
 public class FileController {
-
-    private final FileService fileService;
+    @Autowired
+    private FileService fileService;
 
     @PostMapping("/upload")
     public ApiResponse<FileUploadVO> upload(

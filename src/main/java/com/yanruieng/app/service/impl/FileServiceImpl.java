@@ -3,9 +3,9 @@ package com.yanruieng.app.service.impl;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.model.ObjectMetadata;
 import com.yanruieng.app.common.CustomException;
-import com.yanruieng.app.properties.OssProperties;
 import com.yanruieng.app.entity.FileInfo;
 import com.yanruieng.app.mapper.FileInfoMapper;
+import com.yanruieng.app.properties.OssProperties;
 import com.yanruieng.app.service.FileService;
 import com.yanruieng.app.vo.FileUploadVO;
 import lombok.RequiredArgsConstructor;
@@ -81,7 +81,6 @@ public class FileServiceImpl implements FileService {
         fileInfo.setFileSize(file.getSize());
         fileInfo.setContentType(contentType);
         fileInfo.setFileExt(ext);
-        fileInfo.setBizType(bizType);
         fileInfo.setStorageType(1);
         fileInfo.setStatus(1);
 
