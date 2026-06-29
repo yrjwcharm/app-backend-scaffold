@@ -124,3 +124,7 @@ utils     工具类
 
 - 帮我搭建一个主要用于客户端App开发的Java企业级后端框架，要求技术栈基于SpringBoot4.1.0 +MyBatisPlus +JWT
   +SpringSecurity等技术，Token有效期为30天
+  
+- Synchronized 和ReentrantLock 的区别是什么？ 请简单阐述方便理解用于面试回答
+
+  
