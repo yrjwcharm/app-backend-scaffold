@@ -48,8 +48,8 @@ public class AuthServiceImpl implements AuthService {
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    public void sendPhoneLoginCode(String phone, String clientIp) {
-        smsCodeService.sendLoginCode(phone.trim(), clientIp);
+    public void sendSmsCode(String phone, String clientIp) {
+        smsCodeService.sendSmsCode(phone.trim(), clientIp);
     }
 
     @Override

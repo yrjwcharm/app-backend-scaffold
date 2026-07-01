@@ -113,7 +113,7 @@ public class RedisSmsCodeService implements SmsCodeService {
     private final SmsSender smsSender;
 
     @Override
-    public void sendLoginCode(String phone, String clientIp) {
+    public void sendSmsCode(String phone, String clientIp) {
         validateProperties();
         LocalDateTime now = LocalDateTime.now(BUSINESS_ZONE);
         String phoneKeyPrefix = phoneKeyPrefix(phone);
@@ -159,7 +159,7 @@ public class RedisSmsCodeService implements SmsCodeService {
             redisTemplate.opsForValue().set(codeKey, digest(phone, code),
                     Duration.ofMinutes(properties.getExpireMinutes()));
             redisTemplate.delete(failureKey);
-            smsSender.sendLoginCode(phone, code);
+            smsSender.sendSmsCode(phone, code);
         } catch (Exception e) {
             rollbackFailedSend(codeKey, lockKey, dailyKey, ipKey);
             log.error("短信验证码发送失败，手机号后四位：{}", phone.substring(phone.length() - 4), e);

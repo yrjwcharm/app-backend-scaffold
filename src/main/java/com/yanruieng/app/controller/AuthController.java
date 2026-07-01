@@ -21,12 +21,12 @@ public class AuthController {
     private final AuthService authService;
 
     /**
-     * 发送手机号登录验证码。无论手机号是否已注册，接口响应保持一致，避免泄露账号状态。
+     * 发送手机号短信验证码。无论手机号是否已注册，接口响应保持一致，避免泄露账号状态。
      */
-    @PostMapping("/phone/code")
+    @PostMapping("/sms/code")
     public ApiResponse<Void> sendPhoneCode(@Valid @RequestBody PhoneCodeSendDTO dto,
                                            HttpServletRequest request) {
-        authService.sendPhoneLoginCode(dto.getPhone(), request.getRemoteAddr());
+        authService.sendSmsCode(dto.getPhone(), request.getRemoteAddr());
         return ApiResponse.success();
     }
 

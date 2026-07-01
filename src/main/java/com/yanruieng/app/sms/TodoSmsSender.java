@@ -15,7 +15,7 @@ public class TodoSmsSender implements SmsSender {
     private final SmsCodeProperties properties;
 
     @Override
-    public void sendLoginCode(String phone, String code) {
+    public void sendSmsCode(String phone, String code) {
         String maskedPhone = phone.substring(0, 3) + "****" + phone.substring(7);
         if (properties.isLogCodeEnabled()) {
             log.warn("[TODO-短信服务] 向手机号 {} 发送登录验证码：{}（联调日志，生产环境必须关闭）", maskedPhone, code);
