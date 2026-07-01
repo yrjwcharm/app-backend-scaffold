@@ -23,7 +23,7 @@ public class AuthController {
     /**
      * 发送手机号短信验证码。无论手机号是否已注册，接口响应保持一致，避免泄露账号状态。
      */
-    @PostMapping("/sms/code")
+    @PostMapping("/sendCode")
     public ApiResponse<Void> sendPhoneCode(@Valid @RequestBody PhoneCodeSendDTO dto,
                                            HttpServletRequest request) {
         authService.sendSmsCode(dto.getPhone(), request.getRemoteAddr());
@@ -33,7 +33,7 @@ public class AuthController {
     /**
      * 手机号验证码登录；手机号首次登录时自动创建用户。
      */
-    @PostMapping("/phone/login")
+    @PostMapping("/loginBySms")
     public ApiResponse<LoginVO> phoneLogin(@Valid @RequestBody PhoneCodeLoginDTO dto) {
         return ApiResponse.success(authService.phoneLogin(dto));
     }

@@ -49,13 +49,14 @@ curl -X POST http://localhost:8080/api/auth/login \
 ### 发送手机号登录验证码
 
 ```bash
-curl -X POST http://localhost:8080/api/auth/phone/code \
+curl -X POST http://localhost:8080/api/auth/sms/code \
   -H 'Content-Type: application/json' \
   -d '{"phone":"13800000000"}'
 ```
 
-当前 `TodoSmsSender` 是短信供应商的占位实现，验证码会打印在服务端日志中；生产环境接入正式短信供应商后，将
-`SMS_CODE_LOG_ENABLED` 设为 `false`。
+`TodoSmsSender` 已接入阿里云短信 `dysmsapi20170525` SDK。启动前需要配置 `ALIYUN_SMS_ACCESS_KEY_ID`、
+`ALIYUN_SMS_ACCESS_KEY_SECRET`、`ALIYUN_SMS_SIGN_NAME` 和 `ALIYUN_SMS_TEMPLATE_CODE`；模板变量名默认是 `code`，
+可通过 `ALIYUN_SMS_TEMPLATE_PARAM_NAME` 调整。生产环境请保持 `SMS_CODE_LOG_ENABLED=false`。
 
 ### 手机号验证码登录
 
@@ -110,7 +111,7 @@ utils     工具类
 - refreshToken 存储在 Redis，刷新时会轮换并使旧 refreshToken 失效
 - Spring Security 无状态认证
 - `/api/auth/**` 免登录
-- `/api/user/me` 需要登录
+- 
 - user / user_auth 两张用户相关表；短信验证码只保存在 Redis，不落 MySQL
 - 手机号验证码登录（首次登录自动注册）
 - 验证码摘要存储、原子校验和一次性消费

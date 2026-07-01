@@ -64,11 +64,24 @@ app:
     max-sends-per-day: 10
     max-sends-per-ip-hour: 30
     length: 6
-    # 当前短信发送器只是 TODO 占位实现。联调阶段打印验证码，接入短信供应商后务必设为 false。
-    log-code-enabled: ${SMS_CODE_LOG_ENABLED:true}
+    # 联调阶段可打印验证码，正式环境务必设为 false。
+    log-code-enabled: ${SMS_CODE_LOG_ENABLED:false}
 
-#阿里云OSS对象存储
+# 阿里云云产品配置
 aliyun:
+  sms:
+    endpoint: ${ALIYUN_SMS_ENDPOINT:dysmsapi.aliyuncs.com}
+    region-id: ${ALIYUN_SMS_REGION_ID:cn-hangzhou}
+    access-key-id: ${ALIYUN_SMS_ACCESS_KEY_ID:${ALIYUN_ACCESS_KEY_ID:}}
+    access-key-secret: ${ALIYUN_SMS_ACCESS_KEY_SECRET:${ALIYUN_ACCESS_KEY_SECRET:}}
+    sign-name: ${ALIYUN_SMS_SIGN_NAME:}
+    template-code: ${ALIYUN_SMS_TEMPLATE_CODE:}
+    template-param-name: ${ALIYUN_SMS_TEMPLATE_PARAM_NAME:code}
+    out-id-prefix: ${ALIYUN_SMS_OUT_ID_PREFIX:login-code}
+    auto-retry-enabled: ${ALIYUN_SMS_AUTO_RETRY_ENABLED:true}
+    max-attempts: ${ALIYUN_SMS_MAX_ATTEMPTS:2}
+    connect-timeout-millis: ${ALIYUN_SMS_CONNECT_TIMEOUT_MILLIS:3000}
+    read-timeout-millis: ${ALIYUN_SMS_READ_TIMEOUT_MILLIS:5000}
   oss:
     endpoint: https://oss-cn-beijing.aliyuncs.com
     bucket-name: your-bucket-name
