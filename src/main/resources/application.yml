@@ -51,7 +51,8 @@ app:
   jwt:
     # 至少 32 字节，正式环境请放到环境变量或配置中心
     secret: ${JWT_SECRET:app-backend-scaffold-jwt-secret-please-change-32bytes}
-    expire-days: 30
+    access-token-expire-days: 30
+    refresh-token-expire-days: 30
     header: Authorization
     prefix: Bearer 
   sms-code:

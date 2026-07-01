@@ -14,23 +14,38 @@ import com.yanruieng.app.security.JwtTokenProvider;
 import com.yanruieng.app.service.AuthService;
 import com.yanruieng.app.sms.SmsCodeService;
 import com.yanruieng.app.vo.LoginVO;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
     private static final String IDENTITY_PHONE = "phone";
+    private static final String REFRESH_TOKEN_KEY_PREFIX = "auth:refresh-token:";
+    private static final RedisScript<Long> CONSUME_REFRESH_TOKEN_SCRIPT = new DefaultRedisScript<>("""
+            if redis.call('get', KEYS[1]) == ARGV[1] then
+                return redis.call('del', KEYS[1])
+            end
+            return 0
+            """, Long.class);
+
     private final UserMapper userMapper;
     private final UserAuthMapper userAuthMapper;
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtProperties jwtProperties;
     private final SmsCodeService smsCodeService;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public void sendPhoneLoginCode(String phone, String clientIp) {
@@ -54,6 +69,16 @@ public class AuthServiceImpl implements AuthService {
             user = requireActiveUser(phoneAuth.getUserId());
         }
         return completeLogin(user);
+    }
+
+    @Override
+    public LoginVO refreshToken(String refreshToken) {
+        JwtTokenProvider.JwtTokenClaims claims = parseRefreshToken(refreshToken);
+        if (!consumeRefreshToken(claims.tokenId(), claims.userId())) {
+            throw invalidRefreshTokenException();
+        }
+        User user = requireActiveUser(claims.userId());
+        return issueTokenPair(user.getId());
     }
 
     private void registerSmsCodeClaimSynchronization(String phone, String code, String claimId) {
@@ -108,10 +133,59 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private LoginVO completeLogin(User user) {
-        user.setLastLoginTime(LocalDateTime.now());
-        userMapper.updateById(user);
         BaseContext.setCurrentUserId(user.getId());
-        String token = jwtTokenProvider.createToken(user.getId());
-        return new LoginVO(token, user.getId(), jwtProperties.getExpireDays());
+        try {
+            user.setLastLoginTime(LocalDateTime.now());
+            userMapper.updateById(user);
+            return issueTokenPair(user.getId());
+        } finally {
+            BaseContext.clear();
+        }
+    }
+
+    private LoginVO issueTokenPair(Long userId) {
+        JwtTokenProvider.JwtToken accessToken = jwtTokenProvider.createAccessToken(userId);
+        JwtTokenProvider.JwtToken refreshToken = jwtTokenProvider.createRefreshToken(userId);
+        storeRefreshToken(refreshToken.tokenId(), userId);
+        return new LoginVO(
+                accessToken.value(),
+                refreshToken.value(),
+                userId,
+                jwtProperties.getAccessTokenExpireDays(),
+                jwtProperties.getRefreshTokenExpireDays()
+        );
+    }
+
+    private void storeRefreshToken(String tokenId, Long userId) {
+        redisTemplate.opsForValue().set(
+                refreshTokenKey(tokenId),
+                String.valueOf(userId),
+                Duration.ofDays(jwtProperties.getRefreshTokenExpireDays())
+        );
+    }
+
+    private boolean consumeRefreshToken(String tokenId, Long userId) {
+        Long result = redisTemplate.execute(
+                CONSUME_REFRESH_TOKEN_SCRIPT,
+                Collections.singletonList(refreshTokenKey(tokenId)),
+                String.valueOf(userId)
+        );
+        return Long.valueOf(1L).equals(result);
+    }
+
+    private JwtTokenProvider.JwtTokenClaims parseRefreshToken(String refreshToken) {
+        try {
+            return jwtTokenProvider.parseRefreshToken(refreshToken);
+        } catch (JwtException | IllegalArgumentException e) {
+            throw invalidRefreshTokenException();
+        }
+    }
+
+    private CustomException invalidRefreshTokenException() {
+        return new CustomException(ResponseCode.UNAUTHORIZED, "refreshToken无效或已过期");
+    }
+
+    private String refreshTokenKey(String tokenId) {
+        return REFRESH_TOKEN_KEY_PREFIX + tokenId;
     }
 }

@@ -65,13 +65,25 @@ curl -X POST http://localhost:8080/api/auth/phone/login \
   -d '{"phone":"13800000000","code":"服务端日志中的6位验证码"}'
 ```
 
-手机号首次通过验证码登录时会自动创建用户，后续返回与账号密码登录相同的 JWT。验证码 5 分钟有效且仅可成功使用一次。
+手机号首次通过验证码登录时会自动创建用户，后续返回与账号密码登录相同的双 Token。验证码 5 分钟有效且仅可成功使用一次。
+
+登录响应会返回 `accessToken` 和 `refreshToken`，两者默认均为 30 天有效期。业务接口只使用 `accessToken`。
+
+### 刷新 Token
+
+```bash
+curl -X POST http://localhost:8080/api/auth/token/refresh \
+  -H 'Content-Type: application/json' \
+  -d '{"refreshToken":"替换为登录或上次刷新返回的refreshToken"}'
+```
+
+刷新成功后会返回新的 `accessToken` 和 `refreshToken`，旧 `refreshToken` 会立即失效。
 
 ### 获取当前用户
 
 ```bash
 curl http://localhost:8080/api/user/me \
-  -H 'Authorization: Bearer 替换为登录返回token'
+  -H 'Authorization: Bearer 替换为登录或刷新返回的accessToken'
 ```
 
 ## 目录说明
@@ -94,7 +106,8 @@ utils     工具类
 
 - 账号密码注册
 - 账号密码登录
-- JWT Token 30 天有效期
+- JWT 双 Token 认证：`accessToken` / `refreshToken` 均为 30 天有效期
+- refreshToken 存储在 Redis，刷新时会轮换并使旧 refreshToken 失效
 - Spring Security 无状态认证
 - `/api/auth/**` 免登录
 - `/api/user/me` 需要登录

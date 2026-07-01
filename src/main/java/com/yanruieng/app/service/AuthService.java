@@ -7,4 +7,6 @@ public interface AuthService {
     void sendPhoneLoginCode(String phone, String clientIp);
 
     LoginVO phoneLogin(PhoneCodeLoginDTO dto);
+
+    LoginVO refreshToken(String refreshToken);
 }

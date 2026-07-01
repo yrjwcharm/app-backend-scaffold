@@ -1,5 +1,6 @@
 package com.yanruieng.app.security;
 
+import com.yanruieng.app.common.BaseContext;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,17 +22,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        String auth = request.getHeader(props.getHeader());
-        if (auth != null && auth.startsWith(props.getPrefix())) {
-            try {
-                String token = auth.substring(props.getPrefix().length());
-                Long userId = tokenProvider.parseUserId(token);
-                var authentication = new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            } catch (Exception ignored) {
-                SecurityContextHolder.clearContext();
+        try {
+            String auth = request.getHeader(props.getHeader());
+            if (auth != null && auth.startsWith(props.getPrefix())) {
+                try {
+                    String token = auth.substring(props.getPrefix().length());
+                    Long userId = tokenProvider.parseAccessTokenUserId(token);
+                    var authentication = new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    BaseContext.setCurrentUserId(userId);
+                } catch (Exception ignored) {
+                    SecurityContextHolder.clearContext();
+                    BaseContext.clear();
+                }
             }
+            chain.doFilter(request, response);
+        } finally {
+            BaseContext.clear();
         }
-        chain.doFilter(request, response);
     }
 }

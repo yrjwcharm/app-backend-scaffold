@@ -6,7 +6,9 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class LoginVO {
-    private String token;
+    private String accessToken;
+    private String refreshToken;
     private Long userId;
-    private Integer expireDays;
+    private Integer accessTokenExpireDays;
+    private Integer refreshTokenExpireDays;
 }

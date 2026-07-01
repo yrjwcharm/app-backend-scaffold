@@ -3,6 +3,7 @@ package com.yanruieng.app.controller;
 import com.yanruieng.app.common.ApiResponse;
 import com.yanruieng.app.dto.PhoneCodeLoginDTO;
 import com.yanruieng.app.dto.PhoneCodeSendDTO;
+import com.yanruieng.app.dto.RefreshTokenDTO;
 import com.yanruieng.app.service.AuthService;
 import com.yanruieng.app.vo.LoginVO;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,5 +36,13 @@ public class AuthController {
     @PostMapping("/phone/login")
     public ApiResponse<LoginVO> phoneLogin(@Valid @RequestBody PhoneCodeLoginDTO dto) {
         return ApiResponse.success(authService.phoneLogin(dto));
+    }
+
+    /**
+     * 使用 refreshToken 刷新 accessToken，并轮换新的 refreshToken。
+     */
+    @PostMapping("/token/refresh")
+    public ApiResponse<LoginVO> refreshToken(@Valid @RequestBody RefreshTokenDTO dto) {
+        return ApiResponse.success(authService.refreshToken(dto.getRefreshToken()));
     }
 }

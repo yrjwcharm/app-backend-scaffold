@@ -13,4 +13,8 @@ public class BaseContext {
     public static void setCurrentUserId(Long id) {
         threadLocal.set(id);
     }
+
+    public static void clear() {
+        threadLocal.remove();
+    }
 }
